@@ -11,10 +11,15 @@ soup = BeautifulSoup(r.text, "html.parser")
 count = 1
 for i in soup.find_all('a'):
     if '/Fishing/Where-to-Fish-in-Kansas/Fishing-Locations-Public-Waters/Northeast-Region/' in i.attrs['href'].strip():
-        print ('Found ' + str(count)
-         + ':')
+        print ('Found ' + str(count) + ':')
         count = count + 1
         print (i.contents[0])
         print('')
-        lakeInformationTable = i.find_next('table')
-        print(lakeInformationTable)
+        infoTable = i.find_next('table')
+        for info in infoTable.find_all('tr'):
+            newcount = 0
+            row = ''
+            for specificInfo in info.find_all('td'):
+                row = row + specificInfo.contents[0].strip() + '@ '
+            print(count)
+            print(row)
