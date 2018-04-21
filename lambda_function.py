@@ -110,7 +110,7 @@ def on_session_ended(session_ended_request, session):
 	print("on_session_ended requestId=" + session_ended_request['requestId'] + ", sessionId=" + session['sessionId'])
 
 
-# --------------- Main handler ------------------
+# --------------- Main handler -------------------
 
 def lambda_handler(event, context):
 	print("event.session.application.applicationId=" + event['session']['application']['applicationId'])
