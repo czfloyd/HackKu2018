@@ -16,3 +16,5 @@ for i in soup.find_all('a'):
         count = count + 1
         print (i.contents[0])
         print('')
+        lakeInformationTable = i.find_next('table')
+        print(lakeInformationTable)
