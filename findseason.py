@@ -2,7 +2,6 @@
 
 from datetime import date, datetime
 
-
 Y = 2000 
 seasons = [('winter', (date(Y,  1,  1),  date(Y,  3, 20))),
            ('spring', (date(Y,  3, 21),  date(Y,  6, 20))),
@@ -17,5 +16,7 @@ def get_season(now):
     return next(season for season, (start, end) in seasons
                 if start <= now <= end)
 
-todays_season = get_season(date.today())
+def findseason():
+	return (get_season(date.today()))
+
 
