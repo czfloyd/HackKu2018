@@ -1,6 +1,11 @@
 from __future__ import print_function
+from datetime import date, datetime
 import json
-
+from bs4 import BeautifulSoup
+import requests
+from luretype import luretype
+from findseason import findseason
+from watertemp import watertemp
 
 # --------------- Helpers that build all of the responses ----------------------
 
@@ -62,6 +67,7 @@ def bait_type(intent, session):
     session_attributes = {}
     fish_type = intent['slots']['fish']['value']
     reprompt_text = None
+
     speech_output = 'I would now say what to use to catch {}'.format(fish_type)
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
@@ -122,3 +128,5 @@ def lambda_handler(event, context):
 		return on_intent(event['request'], event['session'])
 	elif event['request']['type'] == "SessionEndedRequest":
 		return on_session_ended(event['request'], event['session'])
+
+#------------- Handling Data ---------------------
