@@ -9,6 +9,7 @@ r = requests.get(url)
 
 soup = BeautifulSoup(r.text, "html.parser")
 
+bigassmfstring = soup.get_text()
 
-
+print (bigassmfstring)
 
