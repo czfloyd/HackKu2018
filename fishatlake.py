@@ -21,7 +21,8 @@ def fishatlake(fishtype, lake):
 				for specificInfo in info.find_all('td'):
 					if fishtype in specificInfo.getText().strip().lower():
 						if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
-							return(specificInfo.find_next().getText().strip())
+							D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+							return(D)
 		if lake == 'perry':
 			if 'PERRY RESERVOIR' in i.contents[0]:
 				infoTable = i.find_next('table')
@@ -31,12 +32,14 @@ def fishatlake(fishtype, lake):
 						for specificInfo in info.find_all('a'):
 							if fishtype in specificInfo.getText().strip().lower():
 								if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
-									return(specificInfo.find_next().getText().strip())
+									D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+									return(D)
 					else:
 						for specificInfo in info.find_all('a'):
 							if fishtype in specificInfo.getText().strip().lower():
 								if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
-									return(specificInfo.find_next().getText().strip())
+									D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+									return(D)
 						
 		if lake == 'milford':
 			if 'MILFORD RESERVOIR' in i.contents[0]:
@@ -46,6 +49,8 @@ def fishatlake(fishtype, lake):
 					for specificInfo in info.find_all('td'):
 						if fishtype in specificInfo.getText().strip().lower():
 							if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
-								return(specificInfo.find_next().getText().strip())
+								D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+								return(D)
 
+#print(fishatlake('bass','milford'))
 
