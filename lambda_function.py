@@ -66,9 +66,10 @@ def by_lake(intent, session):
 def bait_type(intent, session):
     session_attributes = {}
     fish_type = intent['slots']['fish']['value']
+    location = intent['slots']['lake']['value']
     reprompt_text = None
-
-    speech_output = 'I would now say what to use to catch {}'.format(fish_type)
+    bait_type = luretype(fish_type, findseason(), watertemp(location))
+    speech_output = 'You should {}'.format(bait_type)
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
 
