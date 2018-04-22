@@ -43,26 +43,30 @@ def handle_session_end_request():
 
 def by_place(intent, session):
     session_attributes = {}
-    fish_type = intent['slots']['fish']['value']
+    fish_type = handlesyns(intent['slots']['fish']['value']).lower()
     reprompt_text = None
-    speech_output = 'I would now say where to catch {}'.format(fish_type)
+    lake = bestfish(fish_type)
+    speech_output = 'The best place to catch {} is at {}.'.format(fish_type, lake)
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
 
 
 def by_lake(intent, session):
     session_attributes = {}
-    lake_name = intent['slots']['lake']['value']
+    location = handlesyns(intent['slots']['lake']['value']).lower()
     reprompt_text = None
-    speech_output = 'I would now report about the fishing conditions at {}'.format(lake_name)
+    fish = fishscrape(location)
+    speech_output = 'For {}, '.format(location.lower())
+    for x in range(len(fish)-1):
+    	speech_output += ' {} is rated to be {} and their likely weight will be {}. '.format(fish[x][0], fish[x][1], fish[x][2])
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
 
 
 def bait_type(intent, session):
     session_attributes = {}
-    fish_type = intent['slots']['fish']['value']
-    location = intent['slots']['lake']['value']
+    fish_type = handlesyns(intent['slots']['fish']['value']).lower()
+    location = handlesyns(intent['slots']['lake']['value']).lower()
     reprompt_text = None
     bait_type = luretype(fish_type, findseason(), watertemp(location))
     speech_output = 'You should {}'.format(bait_type)
@@ -72,7 +76,7 @@ def bait_type(intent, session):
 
 def bait_not_type(intent, session):
     session_attributes = {}
-    fish_type = intent['slots']['fish']['value']
+    fish_type = handlesyns(intent['slots']['fish']['value']).lower()
     reprompt_text = None
     bait_type = luretype(fish_type, findseason(), watertemp('clinton'))
     speech_output = 'You should {}'.format(bait_type)
@@ -82,35 +86,13 @@ def bait_not_type(intent, session):
 
 def fish_at_place(intent, session):
     session_attributes = {}
-    fish_type = intent['slots']['fish']['value']
-    location = intent['slots']['lake']['value']
+    fish_type = handlesyns(intent['slots']['fish']['value']).lower()
+    location = handlesyns(intent['slots']['lake']['value']).lower()
     reprompt_text = None
-    #status = fishatlake(fish_type, location)
-    speech_output = 'The condition of {} at {} is {}'.format(fish_type, location, fish_type)
+    status = fishatlake(fish_type.lower(), location.lower())
+    speech_output = 'The condition of {} at {} is {}'.format(status[1], location, status[0])
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
-
-def fish_scrape(intent, session):
-	session_attributes = {}
-    location = intent['slots']['lake']['value']
-    reprompt_text = None
-    #status = fishatlake(fish_type, location)
-	fish = fishscrape(location)
-	speech_output = "For {}, ".format(location)
-	for x in range(len(fish)):
-    	speech_output += '{} is rated to be {} and their likely weight will be {}.'.format(fish[x][0], fish[x][1], fish[x][2])
-    should_end_session = True
-    return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
-
-
-def hello_name(intent, session):
-	session_attributes = {}
-	firstname = intent['slots']['firstname']['value']
-	reprompt_text = None
-	speech_output = 'Hello {} Nice to Meet You'.format(firstname)
-	should_end_session = True
-	return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
-
 
 
 
@@ -362,8 +344,68 @@ def fishscrape(lake):
                             index = index + 1
                         count = count + 1
     returnfish = [['' for y in range(3)] for x in range(count-1)]
-    print (count-1)
     for x in range(count-1):
         for y in range(3):
             returnfish[x][y] = fish[x][y]
-    return returnfish[x][y]
+    return returnfish
+
+
+def bestfish(fishtype):
+
+	val1 = fishatlake(fishtype, 'clinton')
+	val2 = fishatlake(fishtype, 'perry')
+	val3 = fishatlake(fishtype, 'milford')
+
+	first = toranking(val1[0])
+	second = toranking(val2[0])
+	third = toranking(val3[0])
+
+	D = ["first", "second", "third"]
+
+	if(third > second):
+		temp = second
+		second = third
+		third = temp
+
+		temp = D[2]
+		D[2] = D[1]
+		D[1] = temp
+
+	if(second > first):
+		temp = first
+		first = second
+		second = temp
+
+		temp = D[0]
+		D[0] = D[1]
+		D[1] = temp
+
+	if(D[0] == "first"):
+		return "clinton"
+	elif(D[1] == "second"):
+		return "perry"
+	else:
+		return "milford"
+
+
+def toranking(entry):
+	if(entry == 'Poor'):
+		return 0
+	elif(entry == 'Slow'):
+		return 1
+	elif(entry == 'Fair'):
+		return 2
+	elif(entry == 'Good'):
+		return 3
+	else:
+		return 4
+
+def handlesyns(word):
+	if word.lower() == 'cat fish':
+		return 'catfish'
+	elif word.lower() == 'paris':
+		return 'perry'
+	elif word.lower() == 'mill ford':
+		return 'milford'
+	else:
+		return word
