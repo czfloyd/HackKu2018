@@ -2,7 +2,7 @@ from __future__ import print_function
 from datetime import date, datetime
 import json
 from bs4 import BeautifulSoup
-import requests
+from botocore.vendored import requests
 
 # --------------- Helpers that build all of the responses ----------------------
 
@@ -70,6 +70,28 @@ def bait_type(intent, session):
     return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
 
 
+def bait_not_type(intent, session):
+    session_attributes = {}
+    fish_type = intent['slots']['fish']['value']
+    reprompt_text = None
+    bait_type = luretype(fish_type, findseason(), watertemp('clinton'))
+    speech_output = 'You should {}'.format(bait_type)
+    should_end_session = True
+    return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
+
+
+def fish_at_place(intent, session):
+    session_attributes = {}
+    fish_type = intent['slots']['fish']['value']
+    location = intent['slots']['lake']['value']
+    reprompt_text = None
+    status = 'good'
+    #status = getStatus(fish_type, location)
+    speech_output = 'You should {}'.format(status)
+    should_end_session = True
+    return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
+
+
 def hello_name(intent, session):
 	session_attributes = {}
 	firstname = intent['slots']['firstname']['value']
@@ -93,6 +115,10 @@ def on_intent(intent_request, session):
 	    return by_lake(intent, session)
 	elif intent_name == "BaitType":
 	    return bait_type(intent, session)
+	elif intent_name == "BaitNotPlace":
+	    return bait_not_type(intent, session)
+	elif intent_name == "FishAtPlace":
+	    return fish_at_place(intent, session)
 	elif intent_name == "AMAZON.HelpIntent":
 		return get_welcome_response()
 	elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
