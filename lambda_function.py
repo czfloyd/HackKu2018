@@ -85,9 +85,20 @@ def fish_at_place(intent, session):
     fish_type = intent['slots']['fish']['value']
     location = intent['slots']['lake']['value']
     reprompt_text = None
-    status = 'good'
-    #status = getStatus(fish_type, location)
-    speech_output = 'You should {}'.format(status)
+    #status = fishatlake(fish_type, location)
+    speech_output = 'The condition of {} at {} is {}'.format(fish_type, location, fish_type)
+    should_end_session = True
+    return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
+
+def fish_scrape(intent, session):
+	session_attributes = {}
+    location = intent['slots']['lake']['value']
+    reprompt_text = None
+    #status = fishatlake(fish_type, location)
+	fish = fishscrape(location)
+	speech_output = "For {}, ".format(location)
+	for x in range(len(fish)):
+    	speech_output += '{} is rated to be {} and their likely weight will be {}.'.format(fish[x][0], fish[x][1], fish[x][2])
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
 
@@ -259,3 +270,100 @@ def watertemp(lake):
 		return clintontemp()
 	else:
 		return milfordtemp()
+
+#finds the condition of a type of fish at a lake
+def fishatlake(fishtype, lake):
+
+	url = "http://ksoutdoors.com/Fishing/Fishing-Reports/Northeast-Region"
+
+	r = requests.get(url)
+
+	soup = BeautifulSoup(r.text, "html.parser")
+	count = int(0)
+	for i in soup.find_all('a'):
+	    if '/Fishing/Where-to-Fish-in-Kansas/Fishing-Locations-Public-Waters/Northeast-Region/' in i.attrs['href'].strip():
+		if lake == 'clinton':
+			if 'CLINTON RESERVOIR' in i.contents[0]:
+			    infoTable = i.find_next('table')
+			    for info in infoTable.find_all('tr'):
+				index = int(0)
+				for specificInfo in info.find_all('td'):
+					if fishtype in specificInfo.getText().strip().lower():
+						if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
+							D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+							return(D)
+		if lake == 'perry':
+			if 'PERRY RESERVOIR' in i.contents[0]:
+				infoTable = i.find_next('table')
+				for info in infoTable.find_all('tr'):
+					index = int(0)
+					if fishtype == 'bass':
+						for specificInfo in info.find_all('a'):
+							if fishtype in specificInfo.getText().strip().lower():
+								if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
+									D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+									return(D)
+					else:
+						for specificInfo in info.find_all('a'):
+							if fishtype in specificInfo.getText().strip().lower():
+								if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
+									D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+									return(D)
+
+		if lake == 'milford':
+			if 'MILFORD RESERVOIR' in i.contents[0]:
+				infoTable = i.find_next('table')
+				for info in infoTable.find_all('tr'):
+					index = int(0)
+					for specificInfo in info.find_all('td'):
+						if fishtype in specificInfo.getText().strip().lower():
+							if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
+								D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+								return(D)
+
+
+def fishscrape(lake):
+
+    url = "http://ksoutdoors.com/Fishing/Fishing-Reports/Northeast-Region"
+
+    r = requests.get(url)
+
+    soup = BeautifulSoup(r.text, "html.parser")
+    count = int(0)
+    skip = 0
+    fish = [['' for x in range(50)] for y in range(50)]
+    for i in soup.find_all('a'):
+        if '/Fishing/Where-to-Fish-in-Kansas/Fishing-Locations-Public-Waters/Northeast-Region/' in i.attrs['href'].strip():
+            if 'clinton'.lower() in lake.lower():
+                if 'clinton'.lower() in i.contents[0].lower():
+                    infoTable = i.find_next('table')
+                    for info in infoTable.find_all('tr'):
+                        if skip < 4:
+                            skip = skip + 1
+                            continue
+                        index = int(0)
+                        if info.getText().strip() == '':
+                            continue
+                        for specificInfo in info.find_all('td'):
+                            if 'Water level' in specificInfo.getText().strip():
+                                count = count - 1
+                                break
+                            if 'Newsletter' in specificInfo.getText().strip():
+                                count = count - 1
+                                break
+                            if specificInfo.getText().strip() == '':
+                                if index == 0:
+                                    count = count - 1
+                                    break
+                                fish[count][index] = 'Unknown'
+                                index = index + 1
+                                continue
+                            fish[count][index] = specificInfo.getText().strip()
+                            index = index + 1
+                        count = count + 1
+    returnfish = [['' for y in range(3)] for x in range(count-1)]
+    print (count-1)
+    for x in range(count-1):
+        for y in range(3):
+            returnfish[x][y] = fish[x][y]
+    return returnfish[x][y]
