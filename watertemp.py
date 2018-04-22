@@ -6,7 +6,7 @@ from scrapemilford import milfordtemp
 def watertemp(lake):
 	if lake == 'perry':
 		return perrytemp()
-	elif lake == 'clinton'
+	elif lake == 'clinton':
 		return clintontemp()
 	else:
 		return milfordtemp()
