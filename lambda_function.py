@@ -28,7 +28,17 @@ def build_response(session_attributes, speechlet_response):
 def get_welcome_response():
 	session_attributes = {}
 	card_title = "Welcome"
-	speech_output = "Hello Andre and Nathan "
+	speech_output = "Hello esteemed judges "
+	reprompt_text = None
+	should_end_session = True
+	return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
+
+
+def get_help():
+	session_attributes = {}
+	card_title = "Welcome"
+	speech_output = "Currently, kansas fishing can give you status updates on the fishing conditions at a lake, help you choose which bait to use for a type of fish at a lake,  "
+	speech_output += "tell you which lake is best for catching a specific fish, and tell you how a specific fish is rated at a lake."
 	reprompt_text = None
 	should_end_session = True
 	return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
@@ -59,6 +69,30 @@ def by_lake(intent, session):
     speech_output = 'For {}, '.format(location.lower())
     for x in range(len(fish)-1):
     	speech_output += ' {} is rated to be {} and their likely weight will be {}. '.format(fish[x][0], fish[x][1], fish[x][2])
+    should_end_session = True
+    return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
+
+
+def by_lake_rates_only(intent, session):
+    session_attributes = {}
+    location = handlesyns(intent['slots']['lake']['value']).lower()
+    reprompt_text = None
+    fish = fishscrape(location)
+    speech_output = 'For {}, '.format(location.lower())
+    for x in range(len(fish)-1):
+    	speech_output += ' {} is rated to be {}. '.format(fish[x][0], fish[x][1])
+    should_end_session = True
+    return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
+
+
+def by_lake_weights_only(intent, session):
+    session_attributes = {}
+    location = handlesyns(intent['slots']['lake']['value']).lower()
+    reprompt_text = None
+    fish = fishscrape(location)
+    speech_output = 'For {}, '.format(location.lower())
+    for x in range(len(fish)-1):
+    	speech_output += ' {} is expected to have a weight of {}.. '.format(fish[x][0], fish[x][2])
     should_end_session = True
     return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
 
@@ -106,6 +140,10 @@ def on_intent(intent_request, session):
 		return by_place(intent, session)
 	elif intent_name == "ByLake":
 	    return by_lake(intent, session)
+	elif intent_name == "ByLakeRateOnly":
+	    return by_lake_rates_only(intent, session)
+	elif intent_name == "ByLakeWeightOnly":
+	    return by_lake_weights_only(intent, session)
 	elif intent_name == "BaitType":
 	    return bait_type(intent, session)
 	elif intent_name == "BaitNotPlace":
@@ -113,7 +151,7 @@ def on_intent(intent_request, session):
 	elif intent_name == "FishAtPlace":
 	    return fish_at_place(intent, session)
 	elif intent_name == "AMAZON.HelpIntent":
-		return get_welcome_response()
+		return get_help()
 	elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
 		return handle_session_end_request()
 	else:
@@ -268,12 +306,12 @@ def fishatlake(fishtype, lake):
 				if 'CLINTON RESERVOIR' in i.contents[0]:
 				    infoTable = i.find_next('table')
 				    for info in infoTable.find_all('tr'):
-					index = int(0)
-					for specificInfo in info.find_all('td'):
-						if fishtype in specificInfo.getText().strip().lower():
-							if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
-								D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
-								return(D)
+						index = int(0)
+						for specificInfo in info.find_all('td'):
+							if fishtype in specificInfo.getText().strip().lower():
+								if specificInfo.find_next().getText().strip() =='Slow' or specificInfo.find_next().getText().strip() == 'Fair' or specificInfo.find_next().getText().strip() =='Good' or specificInfo.find_next().getText().strip() =='Poor' or specificInfo.find_next().getText().strip() =='Excellent':
+									D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+									return(D)
 			if lake == 'perry':
 				if 'PERRY RESERVOIR' in i.contents[0]:
 					infoTable = i.find_next('table')
