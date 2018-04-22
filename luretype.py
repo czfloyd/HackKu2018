@@ -42,5 +42,6 @@ def luretype(fish, season, watertemp):
 
 
 
+print(luretype("bass", "winter", 50))
 
 
