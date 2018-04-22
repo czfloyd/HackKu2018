@@ -3,7 +3,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-def clintontemp(lake):
+def fishscrape(lake):
 
     url = "http://ksoutdoors.com/Fishing/Fishing-Reports/Northeast-Region"
 
