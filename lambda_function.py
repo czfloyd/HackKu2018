@@ -3,9 +3,6 @@ from datetime import date, datetime
 import json
 from bs4 import BeautifulSoup
 import requests
-from luretype import luretype
-from findseason import findseason
-from watertemp import watertemp
 
 # --------------- Helpers that build all of the responses ----------------------
 
@@ -131,3 +128,109 @@ def lambda_handler(event, context):
 		return on_session_ended(event['request'], event['session'])
 
 #------------- Handling Data ---------------------
+
+#function defining lure/bait to use based on fishtype, watertemp, and season
+def luretype(fish, season, watertemp):
+	if fish == "bass":
+		if season == "fall":
+			if watertemp > 65:
+				return " use crankbaits, spinnerbaits, jigs, or frogs"
+			elif watertemp <= 65 and watertemp > 60:
+				return " use buzzbaits, crankbaits, jigs, or worms"
+			elif watertemp <= 60 and watertemp > 55:
+				return " use bladebaits, crankbaits, spoons, or topwater"
+			else:
+				return " use bladebaits, spoons, jigs, or jerkbaits"
+		elif season == "summer":
+			if watertemp > 75:
+				return " use topwaters, frogs, spoons, or deep diving crankbaits"
+			else:
+				return " use shallow crankbaits, jigs, small worms, or buzzbaits"
+		elif season == "spring":
+			if watertemp < 65:
+				return " use jerkbaits, plastics, tubes, or spinners"
+			else:
+				return " use topwaters, plastics, frogs, or swimbaits"
+		else:
+			if watertemp > 55:
+				return " use jerkbaits, crankbaits, or plastics"
+			elif watertemp <= 55 and watertemp > 50:
+				return " use spoons jerkbaits, crankbaits, or jigs"
+			elif watertemp <= 50 and watertemp > 40:
+				return " use spoons, jerkbaits, or grubs"
+			else:
+				return " use jigs, spoons, or grubs"
+	else:
+		if season == "spring":
+			return " use fresh herring or shad"
+		elif season == "summer":
+			return " use fresh sucker or stink bait"
+		elif season == "fall":
+			return " use crayfish, frogs, or grasshoppers"
+		else:
+			return " use jigs or live bait"
+
+#determines the season based on today's date
+Y = 2000
+seasons = [('winter', (date(Y,  1,  1),  date(Y,  3, 20))),
+           ('spring', (date(Y,  3, 21),  date(Y,  6, 20))),
+           ('summer', (date(Y,  6, 21),  date(Y,  9, 22))),
+           ('autumn', (date(Y,  9, 23),  date(Y, 12, 20))),
+           ('winter', (date(Y, 12, 21),  date(Y, 12, 31)))]
+
+def get_season(now):
+    if isinstance(now, datetime):
+        now = now.date()
+    now = now.replace(year=Y)
+    return next(season for season, (start, end) in seasons
+                if start <= now <= end)
+
+def findseason():
+	return (get_season(date.today()))
+
+#gets Milford's Temperature
+def milfordtemp():
+	url = "http://www.nwk.usace.army.mil/Locations/District-Lakes/Milford-Lake/Daily-Lake-Info-2/"
+
+	r = requests.get(url)
+
+	soup = BeautifulSoup(r.text, "html.parser")
+
+	for i in soup.find_all('span'):
+		if i.getText() == 'Lake Water Surface Temperature:':
+			return (int(i.find_next().getText().strip()))
+
+#gets Perry's Temperature
+def perrytemp():
+	url = "http://www.nwk.usace.army.mil/Locations/District-Lakes/Perry-Lake/Daily-Lake-Info-2/"
+
+	r = requests.get(url)
+
+	soup = BeautifulSoup(r.text, "html.parser")
+
+	temp = 0
+
+	for i in soup.find_all('p'):
+		if 'Water Surface Temperature:' in i.contents[0]:
+			return (int(str(i.getText()[28])+str(i.getText()[29])))
+
+#gets Clinton's Temperature
+def clintontemp():
+	url = "http://www.nwk.usace.army.mil/Locations/District-Lakes/Clinton-Lake/Daily-Lake-Info-2/"
+
+	r = requests.get(url)
+
+	soup = BeautifulSoup(r.text, "html.parser")
+
+	for i in soup.find_all('p'):
+		if 'Water' in i.getText():
+			return (int(i.getText()[28] + i.getText()[29]))
+
+#finds water temperature from lake lake_name
+def watertemp(lake):
+	if lake == 'perry':
+		return perrytemp()
+	elif lake == 'clinton'
+		return clintontemp()
+	else:
+		return milfordtemp()
