@@ -15,7 +15,6 @@ def build_speechlet_response(output, should_end_session):
 		'shouldEndSession': should_end_session
 	}
 
-
 def build_response(session_attributes, speechlet_response):
 	return {
 		'version': '1.0',
@@ -230,7 +229,7 @@ def clintontemp():
 def watertemp(lake):
 	if lake == 'perry':
 		return perrytemp()
-	elif lake == 'clinton'
+	elif lake == 'clinton':
 		return clintontemp()
 	else:
 		return milfordtemp()
