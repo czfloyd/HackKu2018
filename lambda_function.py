@@ -36,9 +36,17 @@ def get_welcome_response():
 
 def get_help():
 	session_attributes = {}
-	card_title = "Welcome"
-	speech_output = "Currently, kansas fishing can give you status updates on the fishing conditions at a lake, help you choose which bait to use for a type of fish at a lake,  "
+	speech_output = "Currently, kansas fishing can give you status updates on the fishing conditions at a lake including fish ratings and weights, help you choose which bait to use for a type of fish at a lake,  "
 	speech_output += "tell you which lake is best for catching a specific fish, and tell you how a specific fish is rated at a lake."
+	reprompt_text = None
+	should_end_session = True
+	return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
+
+
+def sample_commands():
+	session_attributes = {}
+	speech_output = "Sample commands include: Ask kansas fishing where I can catch catfish. Ask kansas fishing how all the fish are rated at Milford lake. "
+	speech_output += "Ask kansas fishing what I should use to catch bass at Clinton. Ask kansas fishing how catfish are at Perry lake."
 	reprompt_text = None
 	should_end_session = True
 	return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
@@ -138,9 +146,9 @@ def on_intent(intent_request, session):
 	intent_name = intent_request['intent']['name']
 	if intent_name == "ByPlace":
 		return by_place(intent, session)
-	elif intent_name == "ByLake":
+	elif intent_name == "ByLakeRateVerbose":
 	    return by_lake(intent, session)
-	elif intent_name == "ByLakeRateOnly":
+	elif intent_name == "ByLake":
 	    return by_lake_rates_only(intent, session)
 	elif intent_name == "ByLakeWeightOnly":
 	    return by_lake_weights_only(intent, session)
@@ -148,6 +156,8 @@ def on_intent(intent_request, session):
 	    return bait_type(intent, session)
 	elif intent_name == "BaitNotPlace":
 	    return bait_not_type(intent, session)
+	elif intent_name == "SampleCommands":
+	    return sample_commands()
 	elif intent_name == "FishAtPlace":
 	    return fish_at_place(intent, session)
 	elif intent_name == "AMAZON.HelpIntent":
