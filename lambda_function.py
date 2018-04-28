@@ -28,9 +28,9 @@ def build_response(session_attributes, speechlet_response):
 def get_welcome_response():
 	session_attributes = {}
 	card_title = "Welcome"
-	speech_output = "Hello esteemed judges "
+	speech_output = "Welcome to Kansas fishing. Are you looking for information about fish or lakes? "
 	reprompt_text = None
-	should_end_session = True
+	should_end_session = False
 	return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
 
 
@@ -57,6 +57,28 @@ def handle_session_end_request():
 	speech_output = "Goodbye "
 	should_end_session = True
 	return build_response({}, build_speechlet_response(speech_output, should_end_session))
+
+
+def fish_menu():
+	session_attributes = {}
+	card_title = "Welcome"
+	speech_output = "I currently have information on bass and catfish."
+	speech_output += "I can answer what bait to use and where is best to catch them."
+	speech_output += " What would you like to hear? "
+	reprompt_text = None
+	should_end_session = False
+	return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
+
+
+def lakes_menu():
+	session_attributes = {}
+	card_title = "Welcome"
+	speech_output = "I currently have information on clinton, perry and milford lakes."
+	speech_output += "I can tell you how the fishing is at one or give you an in depth report for one."
+	speech_output += " What would you like to hear? "
+	reprompt_text = None
+	should_end_session = False
+	return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
 
 
 def by_place(intent, session):
@@ -146,6 +168,10 @@ def on_intent(intent_request, session):
 	intent_name = intent_request['intent']['name']
 	if intent_name == "ByPlace":
 		return by_place(intent, session)
+	elif intent_name == "FishMenu":
+		return fish_menu()
+	elif intent_name == "LakesMenu":
+		return lakes_menu()
 	elif intent_name == "ByLakeRateVerbose":
 	    return by_lake(intent, session)
 	elif intent_name == "ByLake":
