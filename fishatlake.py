@@ -17,12 +17,12 @@ def fishatlake(fishtype, lake):
 				if 'CLINTON RESERVOIR' in i.contents[0]:
 				    infoTable = i.find_next('table')
 				    for info in infoTable.find_all('tr'):
-					index = int(0)
-					for specificInfo in info.find_all('td'):
-						if fishtype in specificInfo.getText().strip().lower():
-							if 'Slow' in specificInfo.find_next().getText().strip()  or 'Fair' in specificInfo.find_next().getText().strip() or 'Good' in specificInfo.find_next().getText().strip() or 'Poor' in specificInfo.find_next().getText().strip() or 'Excellent' in specificInfo.find_next().getText().strip():
-								D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
-								return(D)
+						index = int(0)
+						for specificInfo in info.find_all('td'):
+							if fishtype in specificInfo.getText().strip().lower():
+								if 'Slow' in specificInfo.find_next().getText().strip()  or 'Fair' in specificInfo.find_next().getText().strip() or 'Good' in specificInfo.find_next().getText().strip() or 'Poor' in specificInfo.find_next().getText().strip() or 'Excellent' in specificInfo.find_next().getText().strip():
+									D = [specificInfo.find_next().getText().strip(), specificInfo.getText().strip()]
+									return(D)
 			if lake == 'perry':
 				if 'PERRY RESERVOIR' in i.contents[0]:
 					infoTable = i.find_next('table')
